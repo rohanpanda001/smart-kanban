@@ -29,6 +29,7 @@ export interface Task {
 export interface BoardState {
     columns: Record<ColumnId, Task[]>;
     wipLimitHours: number;
+    blockedStallTime: number;
 }
 
 export type CreateTaskInput = Omit<Task, 'id' | 'createdAt' | 'blockedAt' | 'completedAt'>;

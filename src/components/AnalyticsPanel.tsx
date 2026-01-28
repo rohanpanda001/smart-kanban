@@ -15,9 +15,9 @@ const AnalyticsPanel = () => {
 
     return (
         <div className="p-4 bg-white shadow rounded">
-            <h3>Resource Load</h3>
+            <h3 className="font-bold text-gray-700 uppercase text-sm mb-4">Resource Load</h3>
             {Object.entries(statsByAssignee).map(([name, hours]) => (
-                <p key={name}>{name}: {hours}h</p>
+                <p key={name} className="text-sm text-gray-600 mb-2">{name}: {hours}h</p>
             ))}
         </div>
     );

@@ -18,17 +18,9 @@ export const useBoardStore = create<BoardStore>()(
                 [COLUMNS.DONE]: [],
             },
             wipLimitHours: 20,
+            blockedStallTime: 2 * 60 * 1000,
 
             addTask: (columnId, taskData) => {
-                const { columns, wipLimitHours } = get();
-
-                if (columnId === COLUMNS.IN_PROGRESS) {
-                    const currentHours = columns[COLUMNS.IN_PROGRESS].reduce((sum, t) => sum + t.estimate, 0);
-                    if (currentHours + taskData.estimate > wipLimitHours) {
-                        return `WIP Limit Exceeded! Cannot add ${taskData.estimate}h task.`;
-                    }
-                }
-
                 const newTask: Task = {
                     ...taskData,
                     id: crypto.randomUUID(),

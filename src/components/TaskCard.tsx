@@ -11,12 +11,14 @@ interface Props {
 
 const TaskCard = ({ task, index, columnId }: Props) => {
     const deleteTask = useBoardStore((state) => state.deleteTask);
+    const blockedStallTime = useBoardStore((state) => state.blockedStallTime);
 
-    // Requirement #3: Aging Logic (More than 24 hours in Blocked)
+    console.log('rerender', task.id);
+
     const isStalled =
         columnId === COLUMNS.BLOCKED &&
         task.blockedAt &&
-        (Date.now() - task.blockedAt) > 24 * 60 * 60 * 1000;
+        (Date.now() - task.blockedAt) > blockedStallTime;
 
     const completionDate = task.completedAt
         ? new Date(task.completedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })
@@ -38,16 +40,7 @@ const TaskCard = ({ task, index, columnId }: Props) => {
                     <div className="flex justify-between items-center mb-2">
                         <PriorityBadge priority={task.priority} />
                         <div className="flex items-center gap-1.5">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteTask(task.id, columnId);
-                                }}
-                                className="text-gray-400 hover:text-red-500 transition-colors p-1 -mr-1 rounded-md hover:bg-red-50 "
-                                title="Delete task"
-                            >
-                                <Trash2 size={14} />
-                            </button>
+
                             <div className="flex items-center gap-1 text-gray-400 font-mono text-xs">
                                 <Clock size={12} />
                                 <span>{task.estimate}h</span>
@@ -66,20 +59,30 @@ const TaskCard = ({ task, index, columnId }: Props) => {
                             <span className="text-xs font-medium">{task.assignee}</span>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            {completionDate && (
-                                <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold">
-                                    <CheckCircle2 size={12} />
-                                    {completionDate}
-                                </div>
-                            )}
-                            {isStalled && (
-                                <div className="flex items-center gap-1 text-red-600 animate-pulse">
-                                    <AlertCircle size={14} />
-                                    <span className="text-[10px] font-bold">STALLED</span>
-                                </div>
-                            )}
-                        </div>
+                        {completionDate && (
+                            <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold">
+                                <CheckCircle2 size={12} />
+                                {completionDate}
+                            </div>
+                        )}
+
+                        {isStalled && (
+                            <div className="flex items-center gap-1 text-red-600 animate-pulse">
+                                <AlertCircle size={14} />
+                                <span className="text-[10px] font-bold">STALLED</span>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                deleteTask(task.id, columnId);
+                            }}
+                            className="text-gray-400 hover:text-red-500 transition-colors p-1 -mr-1 rounded-md hover:bg-red-50 "
+                            title="Delete task"
+                        >
+                            <Trash2 size={14} />
+                        </button>
                     </div>
                 </div>
             )}

@@ -9,7 +9,7 @@ const CreateTaskForm = ({ onClose }: { onClose: () => void }) => {
         title: '',
         assignee: '',
         estimate: 0,
-        priority: PRIORITIES.MEDIUM,
+        priority: PRIORITIES.LOW,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -56,9 +56,9 @@ const CreateTaskForm = ({ onClose }: { onClose: () => void }) => {
                 className="w-full p-2 border rounded"
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
             >
-                <option value="Low">Low Priority</option>
-                <option value="Medium">Medium Priority</option>
-                <option value="High">High Priority</option>
+                <option value={PRIORITIES.LOW}>Low Priority</option>
+                <option value={PRIORITIES.MEDIUM}>Medium Priority</option>
+                <option value={PRIORITIES.HIGH}>High Priority</option>
             </select>
 
             <div className="flex justify-end gap-2 pt-2">
