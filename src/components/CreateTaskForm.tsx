@@ -35,6 +35,7 @@ const CreateTaskForm = ({ onClose }: { onClose: () => void }) => {
             <input
                 className="w-full p-2 border rounded"
                 placeholder="Task Title"
+                autoFocus
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             />
 

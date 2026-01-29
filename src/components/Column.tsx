@@ -25,7 +25,7 @@ const Column = ({ id, tasks }: Props) => {
                     <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className={`flex-1 transition-colors rounded-md ${snapshot.isDraggingOver ? 'bg-gray-300' : ''
+                        className={`flex-1 transition-colors rounded-md overflow-scroll no-scrollbar ${snapshot.isDraggingOver ? 'bg-gray-300' : ''
                             }`}
                     >
                         {tasks.map((task, index) => (
