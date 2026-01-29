@@ -12,3 +12,24 @@ A high-performance, reactive Kanban application built with **React**, **TypeScri
 1. **Clone the repository and install dependencies:**
    ```bash
    npm install
+   ```
+
+2. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Run the tests:**
+   ```bash
+   npm run test
+   ```
+
+4. **Build the application:**
+   ```bash
+   npm run build
+   ```
+
+5. **Preview the production build:**
+   ```bash
+   npm run preview
+   ```
