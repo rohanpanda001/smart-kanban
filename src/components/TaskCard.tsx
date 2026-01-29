@@ -2,6 +2,7 @@ import { Draggable } from '@hello-pangea/dnd';
 import { Clock, AlertCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import { useBoardStore } from '../store/useBoardStore';
 import { type Task, COLUMNS } from '../types/kanban';
+import React from 'react';
 
 interface Props {
     task: Task;
@@ -11,6 +12,8 @@ interface Props {
 
 const TaskCard = ({ task, index, columnId }: Props) => {
     const { blockedStallTimeHours, deleteTask, setEditingTask } = useBoardStore();
+
+    console.log('rerendering task card', task.id);
 
     const isStalled =
         columnId === COLUMNS.BLOCKED &&
@@ -105,4 +108,11 @@ const PriorityBadge = ({ priority }: { priority: Task['priority'] }) => {
     );
 };
 
-export default TaskCard;
+export default React.memo(TaskCard, (prevProps, nextProps) => {
+    return (
+        prevProps.task.id === nextProps.task.id &&
+        prevProps.task.title === nextProps.task.title &&
+        prevProps.task.priority === nextProps.task.priority &&
+        prevProps.index === nextProps.index
+    );
+});

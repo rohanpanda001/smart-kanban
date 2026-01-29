@@ -57,7 +57,7 @@ export const useBoardStore = create<BoardStore>()(
                     }
                 }
 
-                const updatedTask = { ...taskToMove, columnId: destCol };
+                const updatedTask = { ...taskToMove, columnId: destCol as ColumnId };
                 if (destCol === COLUMNS.DONE) updatedTask.completedAt = Date.now();
                 if (destCol === COLUMNS.BLOCKED) updatedTask.blockedAt = Date.now();
                 if (sourceCol === COLUMNS.BLOCKED && destCol !== COLUMNS.BLOCKED) delete updatedTask.blockedAt;
@@ -69,10 +69,10 @@ export const useBoardStore = create<BoardStore>()(
                     const destColumnItems = sCol === dCol ? sourceColumnItems : [...state.columns[dCol]];
 
                     // Remove from source
-                    const [movedItem] = sourceColumnItems.splice(sourceColumnItems.findIndex((t) => t.id === taskId), 1);
+                    sourceColumnItems.splice(sourceColumnItems.findIndex((t) => t.id === taskId), 1);
 
                     // Add to destination
-                    destColumnItems.splice(destinationIndex, 0, { ...movedItem, ...updatedTask });
+                    destColumnItems.splice(destinationIndex, 0, updatedTask);
 
                     return {
                         columns: {

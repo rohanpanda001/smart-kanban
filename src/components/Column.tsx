@@ -9,7 +9,6 @@ interface Props {
 
 const Column = ({ id, tasks }: Props) => {
     const totalHours = tasks.reduce((sum, t) => sum + t.estimate, 0);
-    console.log(tasks)
 
     return (
         <div className="w-80 flex flex-col bg-gray-200 rounded-lg p-3 min-h-[500px]">
