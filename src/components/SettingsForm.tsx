@@ -51,8 +51,8 @@ const CreateTaskForm = ({ onClose }: { onClose: () => void }) => {
             />
 
             <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={onClose} className="px-4 py-2 text-gray-500">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Update</button>
+                <button type="button" onClick={onClose} className="px-4 py-2 text-gray-500 cursor-pointer">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Update</button>
             </div>
         </form>
     );
