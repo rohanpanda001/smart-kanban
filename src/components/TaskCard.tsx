@@ -10,18 +10,15 @@ interface Props {
 }
 
 const TaskCard = ({ task, index, columnId }: Props) => {
-    const deleteTask = useBoardStore((state) => state.deleteTask);
-    const blockedStallTime = useBoardStore((state) => state.blockedStallTime);
-
-    console.log('rerender', task.id);
+    const { blockedStallTimeHours, deleteTask, setEditingTask } = useBoardStore();
 
     const isStalled =
         columnId === COLUMNS.BLOCKED &&
         task.blockedAt &&
-        (Date.now() - task.blockedAt) > blockedStallTime;
+        (Date.now() - task.blockedAt) > blockedStallTimeHours * 60 * 60 * 1000;
 
     const completionDate = task.completedAt
-        ? new Date(task.completedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })
+        ? new Date(task.completedAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })
         : null;
 
     return (
@@ -31,6 +28,7 @@ const TaskCard = ({ task, index, columnId }: Props) => {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    onClick={() => setEditingTask(task.id, columnId)}
                     className={`
             group p-4 mb-3 rounded-xl border bg-white shadow-sm transition-all duration-200
             ${snapshot.isDragging ? 'shadow-2xl ring-2 ring-blue-500 z-50 rotate-1' : 'hover:border-blue-300'}
@@ -48,9 +46,17 @@ const TaskCard = ({ task, index, columnId }: Props) => {
                         </div>
                     </div>
 
-                    <h3 className="text-sm font-semibold text-gray-800 leading-snug mb-3 line-clamp-2">
-                        {task.title}
-                    </h3>
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2">
+                            {task.title}
+                        </h3>
+                        {completionDate && (
+                            <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold">
+                                <CheckCircle2 size={12} />
+                                {completionDate}
+                            </div>
+                        )}
+                    </div>
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <div className="flex items-center gap-1.5 text-gray-600">
                             <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-700">
@@ -59,12 +65,7 @@ const TaskCard = ({ task, index, columnId }: Props) => {
                             <span className="text-xs font-medium">{task.assignee}</span>
                         </div>
 
-                        {completionDate && (
-                            <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold">
-                                <CheckCircle2 size={12} />
-                                {completionDate}
-                            </div>
-                        )}
+
 
                         {isStalled && (
                             <div className="flex items-center gap-1 text-red-600 animate-pulse">

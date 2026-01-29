@@ -3,9 +3,13 @@ import { persist } from 'zustand/middleware';
 import { type Task, type BoardState, COLUMNS, type ColumnId } from '../types/kanban';
 
 interface BoardStore extends BoardState {
-    addTask: (columnId: string, task: Omit<Task, 'id' | 'createdAt'>) => string | null;
+    addTask: (columnId: string, task: Omit<Task, 'id' | 'createdAt' | 'blockedAt' | 'completedAt' | 'columnId'>) => string | null;
     moveTask: (taskId: string, sourceCol: string, destCol: string, destinationIndex: number) => string | null;
+    setEditingTask: (taskId: string, columnId: string) => void;
+    clearEditingTask: () => void;
+    updateTask: (taskId: string, columnId: string, updates: Partial<Task>) => string | null;
     deleteTask: (taskId: string, columnId: string) => void;
+    updateSettings: (wipLimitHours: number, blockedStallTimeHours: number) => void;
 }
 
 export const useBoardStore = create<BoardStore>()(
@@ -18,7 +22,8 @@ export const useBoardStore = create<BoardStore>()(
                 [COLUMNS.DONE]: [],
             },
             wipLimitHours: 20,
-            blockedStallTime: 2 * 60 * 1000,
+            blockedStallTimeHours: 1,
+            editingTask: null,
 
             addTask: (columnId, taskData) => {
                 const newTask: Task = {
@@ -26,6 +31,7 @@ export const useBoardStore = create<BoardStore>()(
                     id: crypto.randomUUID(),
                     createdAt: Date.now(),
                     blockedAt: columnId === COLUMNS.BLOCKED ? Date.now() : undefined,
+                    columnId: columnId as ColumnId,
                 };
 
                 set((state) => ({
@@ -51,7 +57,7 @@ export const useBoardStore = create<BoardStore>()(
                     }
                 }
 
-                const updatedTask = { ...taskToMove };
+                const updatedTask = { ...taskToMove, columnId: destCol };
                 if (destCol === COLUMNS.DONE) updatedTask.completedAt = Date.now();
                 if (destCol === COLUMNS.BLOCKED) updatedTask.blockedAt = Date.now();
                 if (sourceCol === COLUMNS.BLOCKED && destCol !== COLUMNS.BLOCKED) delete updatedTask.blockedAt;
@@ -80,6 +86,33 @@ export const useBoardStore = create<BoardStore>()(
                 return null;
             },
 
+            setEditingTask: (taskId, columnId) => set({ editingTask: { taskId, columnId } }),
+
+            clearEditingTask: () => set({ editingTask: null }),
+
+            updateTask: (taskId, columnId, updates) => {
+                console.log({ taskId, columnId, updates });
+                const { columns, wipLimitHours } = get();
+                const task = columns[columnId as ColumnId].find(t => t.id === taskId);
+                if (!task) return "Task not found";
+
+                // WIP Limit check if estimate changes while in 'In Progress'
+                if (columnId === COLUMNS.IN_PROGRESS && updates.estimate !== undefined) {
+                    const currentTotal = columns[COLUMNS.IN_PROGRESS].reduce((sum, t) => sum + t.estimate, 0);
+                    if (currentTotal - task.estimate + updates.estimate > wipLimitHours) {
+                        return "WIP limit exceeded for this estimate.";
+                    }
+                }
+
+                set((state) => ({
+                    columns: {
+                        ...state.columns,
+                        [columnId]: state.columns[columnId as ColumnId].map(t => t.id === taskId ? { ...t, ...updates } : t)
+                    }
+                }));
+                return null;
+            },
+
             deleteTask: (taskId, columnId) => {
                 set((state) => ({
                     columns: {
@@ -87,6 +120,13 @@ export const useBoardStore = create<BoardStore>()(
                         [columnId]: state.columns[columnId as ColumnId].filter((t) => t.id !== taskId),
                     },
                 }));
+            },
+
+            updateSettings: (wipLimitHours, blockedStallTimeHours) => {
+                set({
+                    wipLimitHours,
+                    blockedStallTimeHours,
+                });
             },
         }),
         { name: 'kanban-storage' } // LocalStorage Key
